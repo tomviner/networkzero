@@ -8,5 +8,5 @@ python:
 install:
     - pip install pytest
     - pip install tox
-# run tests
+# run test command
 script: tox

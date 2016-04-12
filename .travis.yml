@@ -1,4 +1,5 @@
-# based on https://github.com/pyca/cryptography/blob/master/.travis.yml
+# Based on https://github.com/pyca/cryptography/blob/master/.travis.yml
+
 sudo: false
 
 language: python

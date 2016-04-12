@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Based on https://github.com/pyca/cryptography/blob/master/.travis/install.sh
+
 set -e
 set -x
 

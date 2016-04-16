@@ -22,19 +22,19 @@ roles = nw0.sockets.Sockets.roles
 
 class SupportThread(threading.Thread):
     """Fake the other end of the message/command/notification chain
-    
+
     NB we use as little as possible of the nw0 machinery here,
     mostly to avoid the possibility of complicated cross-thread
     interference but also to test our own code.
     """
-    
+
     def __init__(self, context):
         threading.Thread.__init__(self)
         _logger.debug("Init thread")
         self.context = context
         self.queue = queue.Queue()
         self.setDaemon(True)
-    
+
     def run(self):
         try:
             while True:
@@ -89,7 +89,7 @@ class SupportThread(threading.Thread):
                     time.sleep(0.1)
                 else:
                     break
-                
+
             socket.send_multipart(nw0.sockets._serialise_for_pubsub(topic, data))
 
     def support_test_send_to_multiple_addresses(self, address1, address2):
@@ -141,6 +141,7 @@ def support(request):
     def finalise():
         thread.queue.put((None, None))
         thread.join()
+    request.addfinalizer(finalise)
     thread.start()
     return thread
 
@@ -204,7 +205,7 @@ def test_send_notification(support):
     topic = uuid.uuid4().hex
     data = uuid.uuid4().hex
     reply_queue = queue.Queue()
-    
+
     support.queue.put(("send_notification", [address, topic, reply_queue]))
     while True:
         nw0.send_notification(address, topic, None)
@@ -218,7 +219,7 @@ def test_send_notification(support):
     nw0.send_notification(address, topic, data)
     while in_data is None:
         in_topic, in_data = reply_queue.get()
-    
+
     assert in_topic, in_data == (topic, data)
 
 #
@@ -229,7 +230,7 @@ def test_wait_for_notification(support):
     topic = uuid.uuid4().hex
     data = uuid.uuid4().hex
     sync_queue = queue.Queue()
-    
+
     support.queue.put(("wait_for_notification", [address, topic, data, sync_queue]))
     in_topic, in_data = nw0.wait_for_notification(address, topic, wait_for_s=5)
     sync_queue.put(True)
@@ -260,13 +261,13 @@ def test_wait_for_notification_from_multiple_addresses(support):
     topic = uuid.uuid4().hex
     data = uuid.uuid4().hex
     sync_queue = queue.Queue()
-    
+
     support.queue.put(("wait_for_notification_from_multiple_addresses", [address1, address2, topic, data, sync_queue]))
-    
-    in_topic, in_data = nw0.wait_for_notification([address1, address2], topic, wait_for_s=5)        
+
+    in_topic, in_data = nw0.wait_for_notification([address1, address2], topic, wait_for_s=5)
     sync_queue.put(True)
     while in_data is None:
         in_topic, in_data = nw0.wait_for_notification([address1, address2], topic, wait_for_s=5)
-    assert (topic, data) == (in_topic, in_data)    
+    assert (topic, data) == (in_topic, in_data)
     in_topic, in_data = nw0.wait_for_notification([address1, address2], topic, wait_for_s=5)
-    assert (topic, data) == (in_topic, in_data)    
+    assert (topic, data) == (in_topic, in_data)

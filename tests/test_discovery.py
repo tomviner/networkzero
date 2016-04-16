@@ -19,18 +19,18 @@ is_valid_address = nw0.core.is_valid_address
 
 class SupportThread(threading.Thread):
     """Fake the other end of the message/command/notification chain
-    
+
     NB we use as little as possible of the nw0 machinery here,
     mostly to avoid the possibility of complicated cross-thread
     interference but also to test our own code.
     """
-    
+
     def __init__(self, context):
         threading.Thread.__init__(self)
         self.context = context
         self.queue = queue.Queue()
         self.setDaemon(True)
-    
+
     def run(self):
         try:
             while True:
@@ -52,6 +52,7 @@ def support(request):
     def finalise():
         thread.queue.put((None, None))
         thread.join()
+    request.addfinalizer(finalise)
     thread.start()
     return thread
 

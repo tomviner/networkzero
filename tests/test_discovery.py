@@ -49,10 +49,6 @@ class SupportThread(threading.Thread):
 @pytest.fixture
 def support(request):
     thread = SupportThread(nw0.sockets.context)
-    def finalise():
-        thread.queue.put((None, None))
-        thread.join()
-    request.addfinalizer(finalise)
     thread.start()
     return thread
 
